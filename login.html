@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+</head>
+<body>
+<h1>Login</h1>
+<form action="/login" method="POST" id="loginForm">
+  <label>Choose Your Editor:</label>
+  <br>
+  <button type="submit" name="editorNumber" value="1">Editor 1</button>
+  <button type="submit" name="editorNumber" value="2">Editor 2</button>
+  <button type="submit" name="editorNumber" value="3">Editor 3</button>
+  <button type="submit" name="editorNumber" value="4">Editor 4</button>
+</form>
+
+<script>
+  document.getElementById('loginForm').addEventListener('submit', function (event) {
+    const editorNumber = event.submitter.value;
+    localStorage.setItem('editorNumber', editorNumber);
+  });
+</script>
+</body>
+</html>

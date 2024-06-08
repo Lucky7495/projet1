@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Waiting</title>
+  <style>
+    #leaderboard {
+      margin-top: 20px;
+    }
+    #albumCover{
+      width: 60%;
+    }
+  </style>
+</head>
+<body>
+<h1>En attente du prochain titre !</h1>
+
+<h2 id="artist"></h2>
+<p id="title"></p>
+<img id="albumCover" src="" alt="Album Cover">
+
+
+<!-- Afficher le classement -->
+<div id="leaderboard">
+  <h2>Leaderboard</h2>
+  <ul id="scoreList"></ul>
+</div>
+
+<!-- Inclure Socket.IO -->
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+  const socket = io();
+  const scoreList = document.getElementById('scoreList');
+
+
+  const editorNames = {
+    editor1: 'Lucas',
+    editor2: 'Joueur 2',
+    editor3: 'Joueur 3',
+    editor4: 'Joueur 4'
+  };
+
+  // Mettre à jour le classement
+  socket.on('updateScores', (scores) => {
+    const scoreList = document.getElementById('scoreList');
+    scoreList.innerHTML = '';
+    for (const [editor, score] of Object.entries(scores)) {
+      const listItem = document.createElement('li');
+      listItem.textContent = `${editorNames[editor]}: ${score} point(s)`;
+      scoreList.appendChild(listItem);
+    }
+  });
+
+
+
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    const titleElement = document.getElementById('title');
+    const artistElement = document.getElementById('artist');
+    const albumCoverElement = document.getElementById('albumCover');
+
+    // Effectuer une requête HTTP pour obtenir les informations de piste actuelles depuis le serveur
+    try {
+      const response = await fetch('/current-track-info');
+      const currentTrackInfo = await response.json();
+
+      // Mettre à jour l'interface utilisateur avec les informations de piste actuelles
+      titleElement.textContent = currentTrackInfo.title;
+      artistElement.textContent = currentTrackInfo.artist;
+      albumCoverElement.src = currentTrackInfo.albumCover;
+    } catch (error) {
+      console.error('Error fetching current track info:', error);
+    }
+  });
+
+  // Rediriger vers la page de l'éditeur quand un mot est sélectionné
+  socket.on('wordSelected', (word) => {
+    const editorNumber = localStorage.getItem('editorNumber');
+    if (word && editorNumber) {
+      window.location.href = `/editor${editorNumber}`;
+    }
+  });
+
+</script>
+
+</body>
+</html>

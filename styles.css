@@ -1,0 +1,41 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+}
+
+
+
+#artist-name {
+    margin-top: 10px;
+    font-size: 18px;
+    font-weight: bold;
+
+}
+
+#playlist-container {
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 20px; /* Ajouter un espacement en bas du carrousel */
+}
+
+.playlist-item {
+    display: inline-block;
+    margin-right: 20px; /* Espacement entre les playlists */
+}
+
+.playlist-cover {
+    width: 200px; /* Largeur de chaque couverture de playlist */
+    height: auto;
+}
+
+.playlist-name {
+    margin-top: 5px; /* Espacement entre l'image et le nom de la playlist */
+    text-align: center; /* Centrer le texte */
+}
+

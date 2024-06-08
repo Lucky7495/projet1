@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Word</title>
+    <style>
+        #leaderboard {
+            margin-top: 20px;
+        }
+        .playlist-cover {
+            cursor: pointer;
+            width: 300px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+<a href="http://192.168.1.136:8888/spotify-login">Reset</a>
+<button id="resetButton">Reset Word</button>
+
+<h1>Random Spotify Artist</h1>
+
+<!-- Conteneur pour la playlist -->
+<div id="playlist-container"></div>
+
+<!-- Audio player -->
+<audio id="audio-player" controls></audio>
+
+<!-- Afficher le nom de l'artiste -->
+<h2 id="artist-name"></h2>
+
+<!-- Afficher le titre de la musique -->
+<h3 id="track-title"></h3>
+
+<!-- Afficher la couverture de l'album -->
+<img id="album-cover" class="playlist-cover" alt="Album Cover">
+
+<!-- Afficher le classement -->
+<div id="leaderboard">
+    <h2>Leaderboard</h2>
+    <ul id="scoreList"></ul>
+</div>
+
+<!-- Inclure les scripts JavaScript de Socket.IO et Quill -->
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
+<script>
+    const socket = io();
+
+        const editorNames = {
+        editor1: 'Lucas',
+        editor2: 'Joueur 2',
+        editor3: 'Joueur 3',
+        editor4: 'Joueur 4'
+    };
+
+// Mettre à jour le classement
+    socket.on('updateScores', (scores) => {
+        const scoreList = document.getElementById('scoreList');
+        scoreList.innerHTML = '';
+        for (const [editor, score] of Object.entries(scores)) {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${editorNames[editor]}: ${score} point(s)`;
+            scoreList.appendChild(listItem);
+        }
+    });
+
+    document.getElementById('resetButton').addEventListener('click', () => {
+        fetch('/resetWord', {
+            method: 'POST'
+        }).then(response => {
+            if (response.ok) {
+                console.log('Word reset successfully');
+            }
+        }).catch(error => {
+            console.error('Error resetting word:', error);
+        });
+    });
+
+</script>
+
+<script src="script.js"></script>
+
+
+</body>
+</html>

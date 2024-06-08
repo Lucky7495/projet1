@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Editor</title>
+    <style>
+        h1 {
+            text-align: center;
+        }
+        .editor {
+            margin: 20px;
+        }
+        #editor {
+            width: 70%;
+            height: 10%;
+            box-sizing: border-box;
+            margin: 20% 0 0 13%;
+        }
+        #chosenWord {
+            font-weight: bold;
+        }
+        button {
+            width: 350px;
+            height: 350px;
+            border-radius: 400px;
+            font-size: 1000%;
+        }
+        button i {
+        }
+    </style>
+</head>
+<body>
+<h1>Editor</h1>
+
+<div class="editor">
+    <button id="startButton"><i class="fa-solid fa-microphone"></i></button>
+    <textarea id="editor" rows="10" cols="50"></textarea>
+</div>
+
+<!-- Inclure Socket.io -->
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+
+    const editorName = 'editor2'; // Remplacer par le nom de l'éditeur correspondant
+
+    // Reconnaissance vocale
+    const editor = document.getElementById('editor');
+    const startButton = document.getElementById('startButton');
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'fr-FR'; // Langue française
+    recognition.interimResults = true; // Activer les résultats intermédiaires pour une meilleure réactivité
+
+    let isRecognizing = false;
+
+    startButton.addEventListener('click', () => {
+        if (isRecognizing) {
+            recognition.stop();
+            isRecognizing = false;
+        } else {
+            editor.value = '';
+            recognition.start();
+            isRecognizing = true;
+        }
+    });
+
+    recognition.onresult = (event) => {
+        let interimTranscript = '';
+        let finalTranscript = '';
+
+        for (let i = 0; i < event.results.length; i++) {
+            const result = event.results[i];
+            if (result.isFinal) {
+                finalTranscript += result[0].transcript;
+            } else {
+                interimTranscript += result[0].transcript;
+            }
+        }
+
+        editor.value = finalTranscript + interimTranscript;
+        const content = editor.value.toLowerCase(); // Convertir tout le contenu en minuscules
+        socket.emit('editorUpdate', { editor: editorName, content });
+    };
+
+    recognition.onerror = (event) => {
+        console.error('Recognition error:', event.error);
+        recognition.stop();
+        isRecognizing = false;
+    };
+
+    recognition.onend = () => {
+        if (isRecognizing) {
+            recognition.start();
+        }
+    };
+
+    // Rejoindre la chambre (room) correspondant à l'éditeur
+    socket.emit('joinRoom', editorName);
+
+    // Récupérer l'élément textarea de l'éditeur
+    const editorTextarea = document.getElementById('editor');
+    const chosenWordSpan = document.getElementById('chosenWord');
+    editorTextarea.value = '';
+
+    // Écouter les mises à jour de l'éditeur
+    socket.on('updateEditor', ({ editor, content }) => {
+        if (editor === editorName) {
+            // Mettre à jour le contenu de l'éditeur si c'est l'éditeur actuel
+            editorTextarea.value = content;
+        }
+    });
+
+    // Écouter l'événement de sélection du mot
+    socket.on('wordSelected', (word) => {
+        chosenWordSpan.textContent = word;
+        console.log(`Mot choisi: ${word}`);
+    });
+
+    // Envoyer les mises à jour de l'éditeur au serveur
+    editorTextarea.addEventListener('input', () => {
+        let content = editorTextarea.value.toLowerCase(); // Convertir le contenu en minuscules
+        socket.emit('editorUpdate', { editor: editorName, content });
+    });
+
+    // Rediriger vers la page d'attente si le mot choisi est vide
+    socket.on('resetWord', () => {
+        window.location.href = '/waiting.html';
+    });
+
+    // Rediriger vers la page d'attente si le mot choisi est réinitialisé
+    socket.on('wordSelected', (word) => {
+        if (!word) {
+            window.location.href = '/waiting.html';
+        }
+    });
+</script>
+</body>
+</html>
