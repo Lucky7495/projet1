@@ -17,9 +17,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 
 // Variables de configuration Spotify
-const client_id = 'd1f97930282c4ba6b5aba71a2707071a'; // Remplacez par votre Client ID Spotify
-const client_secret = '73fdae146ea74be88930d09a61e73b42'; // Remplacez par votre Client Secret Spotify
-const redirect_uri = 'http://88.163.98.66:8888/selectword.html/callback'; // Assurez-vous que cette URI de redirection est configurée dans le tableau de bord Spotify
+const client_id = 'ab38fa7ffee345148113bb033bdffc51'; // Remplacez par votre Client ID Spotify
+const client_secret = '3b92a082aed74371a7f5b0c9f0a3409c'; // Remplacez par votre Client Secret Spotify
+const redirect_uri = 'https://lucky.freeboxos.fr:8443/selectword.html/callback'; // Assurez-vous que cette URI de redirection est configurée dans le tableau de bord Spotify
 
 // Données partagées pour les éditeurs
 let editorData = {
